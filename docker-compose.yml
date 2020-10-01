@@ -1,19 +1,18 @@
 version: '3.7'
 services:
   neo4j:
-    image: neo4j:4.0.4-enterprise
+    image: neo4j:4.1.2
     ports:
       - "${NEO4J_HTTP_PORT:-7474}:7474"
       - "${NEO4J_BOLT_PORT:-7687}:7687"
     environment:
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-password}
-      - NEO4J_dbms_memory_heap_maxSize=4G
+      - NEO4J_dbms_memory_heap_maxSize=1G
       - NEO4J_dbms_connector_bolt_advertised__address=${HUME_ADVERTISED_ADDRESS:-localhost}:${NEO4J_PORT:-7687}
-      - NEO4JLABS_PLUGINS=["apoc"]
+      - NEO4JLABS_PLUGINS=["apoc","graph-data-science"]
     volumes:
       - "hume_neo4j_data:/data"
-      - "hume_neo4j_plugins:/plugins"
   orchestra:
     image: docker.graphaware.com/public/hume-orchestra:${HUME_VERSION:-nodes2020}
     ports:
@@ -45,7 +44,19 @@ services:
       - HUME_API_URL=http://${HUME_ADVERTISED_ADDRESS:-localhost}:${HUME_API_PORT:-8080}
     ports:
       - "${HUME_FRONT_PORT:-8081}:80"
+  annotation-service:
+    image: docker.graphaware.com/public/hume-annotation-service:${HUME_VERSION:-nodes2020}
+    environment:
+      - server.port=8085
+      - hume.config.store.driver=local
+    ports:
+      - 8085:8085
+  textrank-service:
+    image: docker.graphaware.com/public/hume-textrank-service:${HUME_VERSION:-nodes2020}
+    environment: 
+      - server.port=8086
+    ports:
+      - 8086:8086
 volumes:
   hume_postgres_data:
   hume_neo4j_data:
-  hume_neo4j_plugins:
