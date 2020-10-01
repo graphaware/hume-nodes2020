@@ -1,0 +1,185 @@
+{
+  "updatedAt": 1584997482457,
+  "classes": [
+    {
+      "uuid": "564c4d9a-59fa-4f4b-8cb1-51c6937a1090",
+      "label": "Winery",
+      "canvasPosition": {
+        "x": 401,
+        "y": 217
+      },
+      "icon": "mdi-factory",
+      "color": "#FFA366",
+      "attributes": [
+        {
+          "uuid": "faa642f0-9c3f-4884-b9cd-6a1f711325d1",
+          "label": "name",
+          "type": "STRING",
+          "primaryKey": true,
+          "searchable": false
+        }
+      ]
+    },
+    {
+      "uuid": "b59bbb42-3e29-4481-8f29-8fe5efe408bd",
+      "label": "Wine",
+      "canvasPosition": {
+        "x": 552,
+        "y": 307
+      },
+      "icon": "mdi-glass-wine",
+      "color": "#FF6666",
+      "attributes": [
+        {
+          "uuid": "8c4e1949-663a-4f30-8fd0-397beba49a76",
+          "label": "description",
+          "type": "STRING",
+          "primaryKey": false,
+          "searchable": false
+        },
+        {
+          "uuid": "09767ab9-0610-4bab-8b03-6a7d9a046591",
+          "label": "name",
+          "type": "STRING",
+          "primaryKey": true,
+          "searchable": false
+        },
+        {
+          "uuid": "1f954b3e-f831-437c-9ee5-e07fd20aa448",
+          "label": "price",
+          "type": "FLOAT",
+          "primaryKey": false,
+          "searchable": false
+        }
+      ]
+    },
+    {
+      "uuid": "2e67c25a-342e-471e-be4d-71285a0de1da",
+      "label": "Region",
+      "canvasPosition": {
+        "x": 678,
+        "y": 170
+      },
+      "icon": "landscape",
+      "color": "#FF6685",
+      "attributes": [
+        {
+          "uuid": "e54a0917-2c08-4d75-b1ad-4a0e9002a05c",
+          "label": "name",
+          "type": "STRING",
+          "primaryKey": true,
+          "searchable": false
+        }
+      ]
+    },
+    {
+      "uuid": "6d88917b-61dc-4946-b506-4b652570b68b",
+      "label": "Variety",
+      "canvasPosition": {
+        "x": 750,
+        "y": 305
+      },
+      "icon": "mdi-tag-multiple",
+      "color": "#66A3FF",
+      "attributes": [
+        {
+          "uuid": "d1bd060e-5eef-493a-b3f2-0b30ab0b4df7",
+          "label": "name",
+          "type": "STRING",
+          "primaryKey": true,
+          "searchable": false
+        }
+      ]
+    },
+    {
+      "uuid": "646e4fbd-788b-43d9-9881-b7288cd5b6f4",
+      "label": "Country",
+      "canvasPosition": {
+        "x": 403,
+        "y": -5
+      },
+      "icon": "public",
+      "color": "#A366FF",
+      "attributes": [
+        {
+          "uuid": "52141ffc-ee7a-4b09-9e06-00a36db66967",
+          "label": "name",
+          "type": "STRING",
+          "primaryKey": false,
+          "searchable": false
+        }
+      ]
+    },
+    {
+      "uuid": "38f5198e-b8a2-447c-8d68-168cedfa5cfb",
+      "label": "Province",
+      "canvasPosition": {
+        "x": 679,
+        "y": -4
+      },
+      "icon": "mdi-sign-direction",
+      "color": "#FF66A3",
+      "attributes": [
+        {
+          "uuid": "56f6ebed-174e-4875-be6a-a547f7136394",
+          "label": "name",
+          "type": "STRING",
+          "primaryKey": true,
+          "searchable": false
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "uuid": "72da8a9b-154e-405e-a0b6-0a41e9813ab9",
+      "start": "b59bbb42-3e29-4481-8f29-8fe5efe408bd",
+      "startLabel": "Wine",
+      "end": "2e67c25a-342e-471e-be4d-71285a0de1da",
+      "endLabel": "Region",
+      "label": "PRODUCED_IN",
+      "offset": 0,
+      "attributes": []
+    },
+    {
+      "uuid": "e26172bc-e47e-465e-87cf-0076edb85ea1",
+      "start": "2e67c25a-342e-471e-be4d-71285a0de1da",
+      "startLabel": "Region",
+      "end": "38f5198e-b8a2-447c-8d68-168cedfa5cfb",
+      "endLabel": "Province",
+      "label": "PART_OF",
+      "offset": 0,
+      "attributes": []
+    },
+    {
+      "uuid": "11fb98e0-e319-44b2-a2f9-04eb8291e013",
+      "start": "564c4d9a-59fa-4f4b-8cb1-51c6937a1090",
+      "startLabel": "Winery",
+      "end": "b59bbb42-3e29-4481-8f29-8fe5efe408bd",
+      "endLabel": "Wine",
+      "label": "PRODUCES",
+      "offset": 0,
+      "attributes": []
+    },
+    {
+      "uuid": "605cc262-e4f8-411d-bfe6-ed6363656050",
+      "start": "38f5198e-b8a2-447c-8d68-168cedfa5cfb",
+      "startLabel": "Province",
+      "end": "646e4fbd-788b-43d9-9881-b7288cd5b6f4",
+      "endLabel": "Country",
+      "label": "IN_COUNTRY",
+      "offset": 0,
+      "attributes": []
+    },
+    {
+      "uuid": "d5a14c41-1724-4b60-b6ff-2acc3627577f",
+      "start": "b59bbb42-3e29-4481-8f29-8fe5efe408bd",
+      "startLabel": "Wine",
+      "end": "6d88917b-61dc-4946-b506-4b652570b68b",
+      "endLabel": "Variety",
+      "label": "IS_OF",
+      "offset": 0,
+      "attributes": []
+    }
+  ]
+}

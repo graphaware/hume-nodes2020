@@ -1,0 +1,51 @@
+version: '3.7'
+services:
+  neo4j:
+    image: neo4j:4.0.4-enterprise
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"
+      - "${NEO4J_BOLT_PORT:-7687}:7687"
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-password}
+      - NEO4J_dbms_memory_heap_maxSize=4G
+      - NEO4J_dbms_connector_bolt_advertised__address=${HUME_ADVERTISED_ADDRESS:-localhost}:${NEO4J_PORT:-7687}
+      - NEO4JLABS_PLUGINS=["apoc"]
+    volumes:
+      - "hume_neo4j_data:/data"
+      - "hume_neo4j_plugins:/plugins"
+  orchestra:
+    image: docker.graphaware.com/public/hume-orchestra:${HUME_VERSION:-nodes2020}
+    ports:
+      - 8100:8100
+    volumes:
+      - ${HUME_PUBLIC_DIR:-./public}:/data
+  postgres:
+    image: postgres:12.0
+    environment:
+      POSTGRES_PASSWORD: ${HUME_DB_PASSWORD:-pgsqls3cr3t}
+      POSTGRES_USER: ${HUME_DB_USER:-hume}
+    ports:
+      - 5432:5432
+    volumes:
+      - "hume_postgres_data:/var/lib/postgresql/data"
+  api:
+    image: docker.graphaware.com/public/hume-api:${HUME_VERSION:-nodes2020}
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${HUME_DB_USER:-hume}
+      - SPRING_DATASOURCE_USERNAME=${HUME_DB_USER:-hume}
+      - SPRING_DATASOURCE_PASSWORD=${HUME_DB_PASSWORD:-pgsqls3cr3t}
+      - hume.orchestra.uri=http://orchestra:8100
+      - hume.orchestra.experimental.enabled=${HUME_EXPERIMENTAL_ENABLED:-false}
+  web:
+    image: docker.graphaware.com/public/hume-web:${HUME_VERSION:-nodes2020}
+    environment:
+      - HUME_API_URL=http://${HUME_ADVERTISED_ADDRESS:-localhost}:${HUME_API_PORT:-8080}
+    ports:
+      - "${HUME_FRONT_PORT:-8081}:80"
+volumes:
+  hume_postgres_data:
+  hume_neo4j_data:
+  hume_neo4j_plugins:
