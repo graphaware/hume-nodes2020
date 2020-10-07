@@ -1,0 +1,113 @@
+###### Query 1
+MERGE (movie:Movie {title: $Title})
+SET movie.plot = $Plot
+RETURN movie.title
+
+###### Query 2
+
+MERGE (movie:Movie {title: $Title})
+SET movie.plot = $Plot, movie.wiki = $`Wiki Page`, movie.release_year = $`Release Year`, movie.director = $Director
+WITH movie
+FOREACH (cast in split($Cast, ",") | MERGE (actor:Actor {name:trim(cast)}) MERGE (actor)-[:ACTED_IN]->(movie))
+FOREACH (genre in split($Genre, ",") | MERGE (g:Genre {genre:trim(genre)}) MERGE (g)<-[:HAS_GENRE]-(movie))
+RETURN movie.title
+
+###### Query 3
+
+MATCH (movie:Movie)
+RETURN id(movie) as id, movie.plot as text
+LIMIT 10
+
+###### Query 4
+
+MATCH (movie:Movie)
+WHERE id(movie) = $id
+RETURN movie.title
+
+###### Query 5
+
+MATCH (movie:Movie)
+WHERE id(movie) = $id
+WITH movie, $_entities as entities
+UNWIND KEYS(entities) as key
+UNWIND entities[key] as entity
+WITH movie, entity, key, substring(toUpper(key), 0, 1) + substring(toLower(key), 1, size(key)) as label
+CALL apoc.create.node(['NamedEntity', label], {value:entity}) YIELD node
+MERGE (movie)-[:CONTAINS_ENTITY]->(node)
+RETURN movie.title, collect(node.value) as values
+
+###### Query 6
+
+MATCH (movie:Movie)
+WHERE id(movie) = $id
+RETURN movie.title
+
+###### Query 7
+
+MATCH (movie:Movie)
+WHERE id(movie) = $id
+FOREACH (keyword in $_keywords | MERGE (key:Keyword {value:keyword.value}) MERGE (key)-[:DESCRIBES {relevance: keyword.relevance}]->(movie))
+RETURN movie.title
+
+###### Query 8
+
+MATCH (keyword:Keyword)-[:DESCRIBES]->(movie)
+WITH keyword, count(movie) as occurrence
+ORDER BY occurrence desc
+return keyword
+LIMIT 50
+
+###### Query 9
+
+MATCH (k:Keyword)-[:DESCRIBES]->(movie:Movie)
+WITH k, count(DISTINCT movie) AS keywordWeight
+WHERE keywordWeight > 5
+RETURN id(k) as keyword_id, keywordWeight
+
+###### Query 10
+
+MATCH (k)-[:DESCRIBES]->(text)<-[:DESCRIBES]-(k2:Keyword)
+WHERE id(k) = $keyword_id AND k <> k2
+WITH k, k2, count(DISTINCT text) AS weight
+WHERE weight > 5
+WITH k, k2, k.value as kValue, k2.value as k2Value, weight, (1.0f*weight)/$keywordWeight  as normalizedWeight
+CREATE (k)-[:CO_OCCURR {weight: weight, normalizedWeight: normalizedWeight}]->(k2)
+RETURN k.value as k1_id, k2.value as k2_id
+
+###### Query 11
+
+CALL gds.graph.create(
+    'keywordsGraph',
+    'Keyword',
+    {
+        CO_OCCURR: {
+            orientation: 'NATURAL'
+        }
+    },
+    {
+        relationshipProperties: 'normalizedWeight'
+    }
+)
+
+###### Query 12
+
+CALL gds.louvain.write('keywordsGraph', {
+    relationshipWeightProperty: 'normalizedWeight',
+    writeProperty: 'community'
+}) YIELD nodePropertiesWritten,  communityCount, modularity
+RETURN nodePropertiesWritten,  communityCount, modularity
+
+###### Query 13
+
+MATCH (k:Keyword)-[:DESCRIBES]->(movie:Movie)
+WITH k, count(movie) as weight
+WHERE weight > 5
+with k.community as community, k.value as keyword, weight
+order by community, weight desc
+WITH community, collect(keyword) as communityMembers
+WITH community as communityId, communityMembers[0..25] as topMembers, size(communityMembers) as size
+ORDER by size desc
+LIMIT 25
+WITH {communityId: toString(communityId), topMembers: topMembers} as data, size
+ORDER BY size DESC
+RETURN data.communityId as community, data.topMembers as members

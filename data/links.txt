@@ -1,0 +1,18 @@
+##### Hume Home:
+http://localhost:8081/
+
+##### Neo4j Browser:
+
+http://localhost:7474/browser/
+
+#### Link to the dataset
+
+https://www.kaggle.com/jrobischon/wikipedia-movie-plots/data
+
+##### Annotation Service:
+
+http://annotation-service:8085/annotate
+
+#### Text Rank Service
+
+http://textrank-service:8086/extractKeywords
